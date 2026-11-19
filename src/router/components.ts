@@ -11,6 +11,7 @@ export const VIEW_COMPONENTS: Record<string, () => Promise<unknown>> = {
     'system/log/LoginLogList': () => import('../views/system/log/LoginLogList.vue'),
     'system/role/RoleList': () => import('../views/system/role/RoleList.vue'),
     'system/menu/MenuList': () => import('../views/system/menu/MenuList.vue'),
+    'system/dict/DictTypeList': () => import('../views/system/dict/DictTypeList.vue'),
     'task/JobList': () => import('../views/task/JobList.vue'),
     'task/JobLogList': () => import('../views/task/JobLogList.vue'),
 }

@@ -47,6 +47,12 @@ const routes: RouteRecordRaw[] = [
                 meta: {title: '日志详情'},
             },
             {
+                path: 'system/dict/data',
+                name: 'SystemDictData',
+                component: () => import('../views/system/dict/DictDataList.vue'),
+                meta: {title: '字典数据', permission: 'system:dict:list'},
+            },
+            {
                 path: 'profile',
                 name: 'Profile',
                 component: () => import('../views/profile/Profile.vue'),

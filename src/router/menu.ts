@@ -42,6 +42,7 @@ export const MENU: MenuItem[] = [
             {path: '/system/login-log', title: '登录日志', icon: 'Document', adminOnly: true},
             {path: '/system/role', title: '角色管理', icon: 'UserFilled', adminOnly: true},
             {path: '/system/menu', title: '菜单管理', icon: 'Menu', adminOnly: true},
+            {path: '/system/dict', title: '字典管理', icon: 'Collection', adminOnly: true},
         ],
     },
     {
