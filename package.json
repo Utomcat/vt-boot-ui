@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "VT-Boot 任务管理控制台前端（Vue3 + Vite + Element Plus）",
+  "description": "VT-Boot 后台管理系统前端（Vue3 + Vite + Element Plus）",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

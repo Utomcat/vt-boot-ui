@@ -24,7 +24,10 @@
         <el-descriptions-item label="cron 表达式">{{ job.cron || '-' }}</el-descriptions-item>
         <el-descriptions-item label="执行器">{{ job.executor || '-' }}</el-descriptions-item>
         <el-descriptions-item label="错过策略">{{ misfireLabel(job.misfire) }}</el-descriptions-item>
-        <el-descriptions-item label="租户 ID">{{ job.tenantId || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="所属租户">
+          <el-tag v-if="!job.tenantId" type="info" size="small">全部租户</el-tag>
+          <span v-else>{{ tenantName(job.tenantId) }}</span>
+        </el-descriptions-item>
         <el-descriptions-item label="任务描述" :span="2">{{ job.description || '-' }}</el-descriptions-item>
       </el-descriptions>
 
@@ -45,9 +48,13 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { deleteJob, fetchJobDetail, pauseJob, resumeJob, triggerJob } from '../../api/task'
 import { VtJob } from '../../data/task/VtJob'
 import { DEFAULT_GROUP, misfireLabel } from '../../data/task/TaskConstants'
+import { useTenantOptions } from '../../composables/useTenantOptions'
 
 const route = useRoute()
 const router = useRouter()
+
+// 租户选项与名称解析
+const { ensureLoaded: ensureTenantLoaded, tenantName } = useTenantOptions()
 
 // 加载状态
 const loading = ref(false)
@@ -112,14 +119,16 @@ const handleDelete = async () => {
     await ElMessageBox.confirm(`删除任务「${job.value.name}」后不可恢复, 确定删除？`, '提示', { type: 'warning' })
     await deleteJob(job.value.group, job.value.name)
     ElMessage.success('已删除')
-    router.push({ name: 'TaskJobList' })
+    router.push('/task/job')
 }
 
 const goBack = () => {
-    router.push({ name: 'TaskJobList' })
+    router.push('/task/job')
 }
 
-onMounted(load)
+onMounted(async () => {
+    await Promise.all([load(), ensureTenantLoaded()])
+})
 </script>
 
 <style scoped>

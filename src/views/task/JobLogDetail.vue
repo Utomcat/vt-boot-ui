@@ -24,7 +24,10 @@
         <el-descriptions-item label="结束时间">{{ formatDateTime(log.endTime) || '-' }}</el-descriptions-item>
         <el-descriptions-item label="耗时">{{ formatDuration(log.durationMs) }}</el-descriptions-item>
         <el-descriptions-item label="执行实例">{{ log.instanceId || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="租户 ID">{{ log.tenantId || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="所属租户">
+          <el-tag v-if="!log.tenantId" type="info" size="small">全部租户</el-tag>
+          <span v-else>{{ tenantName(log.tenantId) }}</span>
+        </el-descriptions-item>
         <el-descriptions-item label="创建时间" :span="2">{{ formatDateTime(log.createTime) || '-' }}</el-descriptions-item>
       </el-descriptions>
 
@@ -50,9 +53,13 @@ import { fetchJobLogDetail } from '../../api/task'
 import { VtJobLog } from '../../data/task/VtJobLog'
 import { logStatusLabel, logStatusTagType } from '../../data/task/TaskConstants'
 import { formatDateTime, formatDuration } from '../../utils/date'
+import { useTenantOptions } from '../../composables/useTenantOptions'
 
 const route = useRoute()
 const router = useRouter()
+
+// 租户选项与名称解析
+const { ensureLoaded: ensureTenantLoaded, tenantName } = useTenantOptions()
 
 // 加载状态
 const loading = ref(false)
@@ -82,10 +89,12 @@ const load = async () => {
 }
 
 const goBack = () => {
-    router.push({ name: 'TaskJobLogList' })
+    router.push('/task/log')
 }
 
-onMounted(load)
+onMounted(async () => {
+    await Promise.all([load(), ensureTenantLoaded()])
+})
 </script>
 
 <style scoped>

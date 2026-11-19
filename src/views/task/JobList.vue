@@ -23,7 +23,7 @@
         />
         <el-button type="primary" icon="Search" @click="handleSearch">查询</el-button>
         <el-button icon="RefreshLeft" @click="handleReset">重置</el-button>
-        <el-button type="success" icon="Plus" @click="openCreate">新增任务</el-button>
+        <el-button v-perm="'task:job:add'" type="success" icon="Plus" @click="openCreate">新增任务</el-button>
       </div>
 
       <el-table :data="list" v-loading="loading" stripe border style="width: 100%">
@@ -31,6 +31,12 @@
         <el-table-column prop="group" label="分组" width="110" />
         <el-table-column prop="cron" label="cron 表达式" min-width="150" show-overflow-tooltip />
         <el-table-column prop="executor" label="执行器" min-width="120" show-overflow-tooltip />
+        <el-table-column label="所属租户" min-width="140" show-overflow-tooltip>
+          <template #default="{ row }">
+            <el-tag v-if="!row.tenantId" type="info" size="small">全部租户</el-tag>
+            <span v-else>{{ tenantName(row.tenantId) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="错过策略" min-width="150" show-overflow-tooltip>
           <template #default="{ row }">{{ misfireLabel(row.misfire) }}</template>
         </el-table-column>
@@ -47,9 +53,9 @@
             <el-button link type="primary" @click="openDetail(row)">详情</el-button>
             <el-button v-if="row.paused" link type="success" @click="handleResume(row)">恢复</el-button>
             <el-button v-else link type="warning" @click="handlePause(row)">暂停</el-button>
-            <el-button link type="primary" @click="handleTrigger(row)">执行一次</el-button>
-            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button v-perm="'task:job:trigger'" link type="primary" @click="handleTrigger(row)">执行一次</el-button>
+            <el-button v-perm="'task:job:edit'" link type="primary" @click="openEdit(row)">编辑</el-button>
+            <el-button v-perm="'task:job:delete'" link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -97,8 +103,11 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="租户 ID" prop="tenantId">
-          <el-input v-model="form.tenantId" placeholder="可留空" />
+        <el-form-item label="所属租户" prop="tenantId">
+          <el-select v-model="form.tenantId" placeholder="不选则所有租户都可执行" style="width: 100%">
+            <el-option label="全部租户(所有租户可执行)" value="" />
+            <el-option v-for="item in tenantOptions" :key="item.id" :label="item.name" :value="String(item.id)" />
+          </el-select>
         </el-form-item>
         <el-form-item label="任务描述" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="2" placeholder="任务说明" />
@@ -137,8 +146,12 @@ import {
 import { VtJob } from '../../data/task/VtJob'
 import { VtJobSaveDTO } from '../../data/task/VtJobSaveDTO'
 import { DEFAULT_GROUP, MISFIRE_OPTIONS, misfireLabel } from '../../data/task/TaskConstants'
+import { useTenantOptions } from '../../composables/useTenantOptions'
 
 const router = useRouter()
+
+// 租户选项与名称解析
+const { ensureLoaded: ensureTenantLoaded, tenantOptions, tenantName } = useTenantOptions()
 
 // 列表加载状态
 const loading = ref(false)
@@ -309,5 +322,7 @@ const handleDelete = async (row: VtJob) => {
   await load()
 }
 
-onMounted(load)
+onMounted(async () => {
+  await Promise.all([load(), ensureTenantLoaded()])
+})
 </script>
